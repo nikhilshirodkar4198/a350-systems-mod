@@ -2,7 +2,7 @@
 ===============================================================================
   A350_BTV.lua  -  Brake To Vacate, OANS airport map and ROW/ROP
                    for the FlightFactor A350 in X-Plane 12 and X-Plane 11
-  Version 1.0.0  (FlyWithLua NG+ / NG)
+  Version 1.0.1  (FlyWithLua NG+ / NG)
 
   Copyright (c) 2026 The A350 BTV author
   SPDX-License-Identifier: MIT  (see LICENSE.txt in the download)
@@ -73,7 +73,7 @@ pcall(require, "graphics")
 -------------------------------------------------------------------------------
 -- Einstellungen / Konstanten
 -------------------------------------------------------------------------------
-local VERSION = "1.0.0"
+local VERSION = "1.0.1"
 local KT = 0.514444            -- m/s pro Knoten
 local R_EARTH = 6371000.0
 local D2R = math.pi / 180
@@ -9991,13 +9991,26 @@ end
 -------------------------------------------------------------------------------
 -- mouse
 -------------------------------------------------------------------------------
--- cursor on a page: the page point under the mouse. While the mouse does not move, small changes of that point
--- (the cockpit view shakes, the projection with it) are ignored; a moved mouse or a moved view (head turned) takes
--- the new point.
+-- cursor on a page: the aircraft's vibrations (X-Plane head shake, FF effects) move the projection screen -> page,
+-- not the mouse. So only the mouse movement is taken (old and new mouse point through the same projection): a still
+-- mouse is a still cursor. The offset to the projected point shakes around its mean; only that mean (head moved,
+-- view panned) is pulled in slowly. Very far off (view changed): start again at the projected point. (as the ND cursor)
 function PNL.atc_stable_cursor(old, which, inv, sx, sy, px, py)
-    if old and old.which == which and math.abs(old.sx - sx) < 0.5 and math.abs(old.sy - sy) < 0.5
-        and math.abs(old.x - px) < 3 and math.abs(old.y - py) < 3 then return old end
-    return { which = which, x = px, y = py, sx = sx, sy = sy }
+    if old and old.which == which then
+        local ok, ox, oy = pcall(inv, old.sx, old.sy)
+        if ok and ox then
+            local nx, ny = old.x + px - ox, old.y + py - oy
+            local dx, dy = px - nx, py - ny
+            if math.abs(dx) < 25 and math.abs(dy) < 25 then
+                local fx, fy = old.fx or 0, old.fy or 0
+                fx, fy = fx + (dx - fx) * 0.04, fy + (dy - fy) * 0.04
+                if math.abs(fx) > 0.75 then nx = nx + fx * 0.08 end
+                if math.abs(fy) > 0.75 then ny = ny + fy * 0.08 end
+                return { which = which, x = nx, y = ny, sx = sx, sy = sy, fx = fx, fy = fy }
+            end
+        end
+    end
+    return { which = which, x = px, y = py, sx = sx, sy = sy, fx = 0, fy = 0 }
 end
 
 -- mouse moved over our window: cursor and the page's hover frame
