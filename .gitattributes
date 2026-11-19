@@ -1,0 +1,2 @@
+# keep every file byte-identical to the release (no line-ending conversion)
+* -text

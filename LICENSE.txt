@@ -1,0 +1,76 @@
+A350 Systems Mod - licenses and notices
+=======================================
+
+This mod combines parts with different licenses.
+
+
+1) A350 BTV - MIT License
+   A350_BTV.lua (OANS / BTV / ROW-ROP) and the helper plugin zz_A350_BTV_bridge, original by Geijapi28
+   (https://forums.x-plane.org/files/file/102021-a350-btv-brake-to-vacate-oans-rowrop-for-the-flightfactor-a350/),
+   and everything written for this mod: the ATCCOM section of A350_BTV.lua, A350_ATCCOM/ui.lua (ATCCOM page),
+   A350_ATCCOM/hoppie.lua (Hoppie ACARS client) and A350_ATCCOM/atc_msg_chime.wav (ATC MSG chime, synthesized).
+
+   MIT License
+
+   Copyright (c) 2026 Jason R. (A350 BTV) and the A350 Systems Mod contributors
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+
+2) ATC MSG chime A350_ATCCOM/CPDLC.wav - by caspar92UA (A350 Systems Enhancement Mod 1.2), used with their permission
+   All rights reserved by its author; it may be shared as part of this mod. For any other use ask its author. A newly
+   synthesized sound, not an aircraft recording (per its author).
+
+
+3) B612 Mono font - SIL Open Font License 1.1
+   Copyright 2012 The B612 Project Authors (https://github.com/polarsys/b612). Included as a pre-rendered bitmap
+   atlas (A350_BTV_data/font_b612_px2.bin, Bold and Regular rendered with FreeType, Regular slightly emboldened).
+   Full license text: A350_BTV_data/font_b612_OFL.txt. PolarSys, PolarSys B612 and B612 are trademarks of The
+   Eclipse Foundation.
+
+
+4) Synthetic voices (A350_BTV_data/sounds/voice1, voice2, voice3 and rops/keep_max_reverse.wav)
+   Generated with the Kokoro-82M text-to-speech model (https://github.com/hexgrad/kokoro, Apache License 2.0), run
+   with sherpa-onnx (https://github.com/k2-fsa/sherpa-onnx, Apache License 2.0), then filtered to sound like a
+   cockpit speaker.
+
+
+5) Data used at runtime, not included
+   - OpenStreetMap building outlines, downloaded from public Overpass API servers and cached in
+     A350_BTV_data/osm2_<ICAO>.json. Data (c) OpenStreetMap contributors, Open Database License (ODbL):
+     https://www.openstreetmap.org/copyright
+   - Runways, taxiways and exits from the apt.dat files of your own X-Plane installation.
+   - Hoppie's ACARS network (https://www.hoppie.nl/acars/), VATSIM and IVAO public data feeds. Your Hoppie logon
+     code stays on your computer.
+
+
+6) FlightFactor A350 files - not included
+   On the first start the script adds the range knob ZOOM position and the A/BRK pushbutton to the aircraft's own
+   cockpit files (backups kept) and builds A350_BTV_data/font_tls_px2.bin from the aircraft's own display font. No
+   part of the aircraft is distributed with this mod; the generated font stays on your computer and must not be
+   redistributed.
+
+
+7) Required separately: FlyWithLua NG+ / NG (https://github.com/X-Friese/FlyWithLua).
+
+
+Trademarks
+   Airbus and A350 are trademarks of Airbus. FlightFactor is a trademark of its owner. X-Plane is a trademark of
+   Laminar Research. They are used only to describe compatibility. This project is not affiliated with, endorsed
+   by or supported by any of them. For flight simulation only.

@@ -1,0 +1,18 @@
+# files the scripts generate on the user's computer (never commit)
+A350_BTV_config.txt
+A350_BTV_index.txt
+A350_BTV_osm*
+A350_BTV_abrk_lit.*
+A350_BTV_reload.txt
+font_tls_px2.bin
+osm*_*.json
+A350_Wind_Uplink_fetch.cmd
+A350_Wind_Uplink_data/
+*.globals.txt
+# release zips are attached to GitHub releases, not committed
+*.zip
+# ATCCOM datalink: the user's Hoppie logon code and runtime files (never commit)
+A350_ATCCOM/hoppie_logon.txt
+A350_ATCCOM/atccom_network.txt
+A350_ATCCOM/http*
+A350_ATCCOM/popup_window.txt
