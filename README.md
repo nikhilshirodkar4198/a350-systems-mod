@@ -30,8 +30,6 @@ Thank you to **Geijapi28** (original A350 BTV) - this mod is heavily built on th
 - **ROW / ROP** - runway overrun warning and protection with stop lines, PFD messages and callouts
 - **ATCCOM page like the real A350** - live Hoppie ACARS and CPDLC: logon, requests, clearances with WILCO,
   departure clearance, D-ATIS from VATSIM / IVAO, mailbox, ATC MSG lamps and chime
-- **X-Plane 11 and 12, FlyWithLua only** - no Python, no other plugins
-
 
 ## About
 
