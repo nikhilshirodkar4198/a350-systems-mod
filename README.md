@@ -38,7 +38,7 @@ A systems mod for the FlightFactor A350 XWB Advanced 1.7.4 in X-Plane 12 and X-P
 ATCCOM page. Everything is drawn into the 3D cockpit displays and used with the aircraft's own knobs, pushbuttons
 and MFD, as on the real aircraft.
 
-Version 1.0.0 for Windows.
+Version 1.0.1 for Windows.
 
 Why the second run: on the first start the mod builds an airport index from your scenery, makes the ND font from
 the A350's own display font, and adds the ZOOM position to the range knob and the A/BRK pushbutton to the cockpit

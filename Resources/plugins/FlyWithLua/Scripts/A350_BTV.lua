@@ -2,7 +2,7 @@
 ===============================================================================
   A350_BTV.lua  -  Brake To Vacate, OANS airport map and ROW/ROP
                    for the FlightFactor A350 in X-Plane 12 and X-Plane 11
-  Version 1.0.0  (FlyWithLua NG+ / NG)
+  Version 1.0.1  (FlyWithLua NG+ / NG)
 
   Copyright (c) 2026 The A350 BTV author
   SPDX-License-Identifier: MIT  (see LICENSE.txt in the download)
@@ -73,7 +73,7 @@ pcall(require, "graphics")
 -------------------------------------------------------------------------------
 -- Einstellungen / Konstanten
 -------------------------------------------------------------------------------
-local VERSION = "1.0.0"
+local VERSION = "1.0.1"
 local KT = 0.514444            -- m/s pro Knoten
 local R_EARTH = 6371000.0
 local D2R = math.pi / 180
