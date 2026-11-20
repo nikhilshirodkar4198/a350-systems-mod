@@ -8587,14 +8587,7 @@ function PFD.draw(s)
         local t, cap = "BTV", PFD.fma_cap
         TF.reg = true
         local base = (line == 1) and PFD.fma_base1 or PFD.fma_base
-        pcall(function()
-            local w = text_w(t, cap)
-            txt_b(PFD.fma_x - w / 2, base, col, t, cap)
-            -- bremst BTV beim Ausrollen: weisser Kasten um "BTV" wie bei FFs aktiven FMA-Modi
-            if line == 1 then
-                DL.rect(PFD.fma_x - w / 2 - 2, base - cap - 1.6, PFD.fma_x + w / 2 + 2, base + 1.6, MC.ffw, 0, 0, 0.8)
-            end
-        end)
+        pcall(function() txt_b(PFD.fma_x - text_w(t, cap) / 2, base, col, t, cap) end)
         TF.reg = false
     end
     local t, mc = PFD.msg()
