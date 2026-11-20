@@ -8386,6 +8386,7 @@ void *btv_XPLMCreateWindowEx(btv_wnd_t *) __asm__("XPLMCreateWindowEx");
 void btv_XPLMDestroyWindow(void *) __asm__("XPLMDestroyWindow");
 void btv_XPLMSetWindowGeometry(void *, int, int, int, int) __asm__("XPLMSetWindowGeometry");
 void btv_XPLMSetWindowIsVisible(void *, int) __asm__("XPLMSetWindowIsVisible");
+void btv_XPLMBringWindowToFront(void *) __asm__("XPLMBringWindowToFront");
 void btv_XPLMGetScreenBoundsGlobal(int *, int *, int *, int *) __asm__("XPLMGetScreenBoundsGlobal");
 void btv_XPLMGetMouseLocationGlobal(int *, int *) __asm__("XPLMGetMouseLocationGlobal");
 void btv_XPLMTakeKeyboardFocus(void *) __asm__("XPLMTakeKeyboardFocus");
@@ -8586,7 +8587,14 @@ function PFD.draw(s)
         local t, cap = "BTV", PFD.fma_cap
         TF.reg = true
         local base = (line == 1) and PFD.fma_base1 or PFD.fma_base
-        pcall(function() txt_b(PFD.fma_x - text_w(t, cap) / 2, base, col, t, cap) end)
+        pcall(function()
+            local w = text_w(t, cap)
+            txt_b(PFD.fma_x - w / 2, base, col, t, cap)
+            -- bremst BTV beim Ausrollen: weisser Kasten um "BTV" wie bei FFs aktiven FMA-Modi
+            if line == 1 then
+                DL.rect(PFD.fma_x - w / 2 - 2, base - cap - 1.6, PFD.fma_x + w / 2 + 2, base + 1.6, MC.ffw, 0, 0, 0.8)
+            end
+        end)
         TF.reg = false
     end
     local t, mc = PFD.msg()
@@ -10998,7 +11006,8 @@ local function pnl_click(x, y, st, right)
         if sd.hin and sd.hsx == x and sd.hsy == y then lx, ly = sd.hx, sd.hy end
         PNL.cap_xy = { x, y, lx, ly }
         PNL.cap, PNL.cap_right = s, right
-        sd.q[#sd.q + 1] = { t = right and "rdown" or "down", x = lx, y = ly, sx = x, sy = y, tm = XP.btv_XPLMGetElapsedTime() }
+        sd.dn_t = XP.btv_XPLMGetElapsedTime()
+        sd.q[#sd.q + 1] = { t = right and "rdown" or "down", x = lx, y = ly, sx = x, sy = y, tm = sd.dn_t }
         pnl_diag_click(s, lx, ly)
         return true
     end
@@ -11068,6 +11077,43 @@ function PNL.knob_click(x, y)
     if not s then return false end
     PNL.knob_turn(s, x >= k[1])
     return true
+end
+-- FF-Popup des ND (AirbusFBW/PopUpNDCapt|Co): das FF oeffnet es beim Klick auf sein ND und bekommt den Klick unter
+-- Umstaenden vor dem Mausfenster (dann kommt er nie bei der Karte an). Zeigt das ND die Karte, ist es wie im A350
+-- ein Touchscreen: ein dort geoeffnetes Popup wird wieder geschlossen, und ein Klick, den das Mausfenster nicht
+-- bekommen hat, geht nachtraeglich an die Karte (erst nach 0,3 s - kam er doch, nicht doppelt).
+function PNL.ndpop_tick(mx, my)
+    local d, now = PNL.dr, XP.btv_XPLMGetElapsedTime()
+    for s = 0, 1 do
+        local sd, ref = PNL.sd[s], (s == 0) and d.np0 or d.np1
+        local p = sd.np_pend
+        if p and now - p.t > 0.3 then
+            sd.np_pend = nil
+            if not (sd.dn_t and math.abs(sd.dn_t - p.t) < 0.6) and sd.show and sd.vm then
+                sd.q[#sd.q + 1] = { t = "down", x = p.x, y = p.y, sx = p.sx, sy = p.sy, tm = p.t }
+                sd.q[#sd.q + 1] = { t = "up", x = p.x, y = p.y, sx = p.sx, sy = p.sy, tm = now }
+                pnl_log(string.format("ND %s: click from FF's popup sent to the map at %.0f/%.0f", s == 0 and "CAPT" or "F/O", p.x, p.y))
+            end
+        end
+        local v = ref and ref[0] or 0
+        local opened = v ~= 0 and (sd.np or 0) == 0
+        sd.np = v
+        if v ~= 0 and sd.np_t and now - sd.np_t < 0.5 and not sd.np_cmd then
+            -- (Schreiben wirkte nicht: das Popup ueber FFs Befehl wieder schliessen)
+            sd.np_cmd = true
+            pcall(command_once, "AirbusFBW/PopUpND" .. (s + 1))
+        end
+        if opened and sd.show and sd.avail ~= false and sd.vm and sd.inv then
+            local ok, lx, ly = pcall(sd.inv, mx, my)
+            if ok and lx and lx >= 0 and lx <= ND_VW and ly >= 0 and ly <= ND_VH then
+                sd.np_t, sd.np_cmd = now, false
+                sd.np_pend = { t = now, x = lx, y = ly, sx = mx, sy = my }
+                pcall(function() ref[0] = 0 end)
+                PNL.np_n = (PNL.np_n or 0) + 1
+                if PNL.np_n <= 5 then pnl_log("ND " .. (s == 0 and "CAPT" or "F/O") .. ": FF's ND popup closed (OANS on the ND = touch screen)") end
+            end
+        end
+    end
 end
 -- Range-Knopf auf ZOOM wie im A350: ZOOM beginnt (von 10 kommend) mit der groessten OANS-Reichweite (5 NM),
 -- jeder Schritt nach links zoomt hinein (2 - 1 - 0,5 - 0,2 NM), nach rechts wieder heraus; ein Schritt ueber
@@ -11200,7 +11246,8 @@ local function pnl_init()
     PNL.dr = {
         zl = find("1-sim/fcu/ndZoomLeft/switch"), zr = find("1-sim/fcu/ndZoomRight/switch"),
         vt = find("sim/graphics/view/view_type"), vr = find("sim/graphics/VR/enabled"),
-        wm = find("sim/graphics/view/world_matrix"), pm = find("sim/graphics/view/projection_matrix_3d"),
+        np0 = find("AirbusFBW/PopUpNDCapt"), np1 = find("AirbusFBW/PopUpNDCo"),
+        wm =find("sim/graphics/view/world_matrix"), pm = find("sim/graphics/view/projection_matrix_3d"),
         ww = find("sim/graphics/view/window_width"), wh = find("sim/graphics/view/window_height"),
         uis = find("sim/graphics/misc/user_interface_scale"),
         lx = find("sim/flightmodel/position/local_x"), ly = find("sim/flightmodel/position/local_y"),
@@ -11949,6 +11996,10 @@ local function pnl_frame()
                 rect = { math.floor(x0 - m), math.ceil(y1 + m), math.ceil(x1 + m), math.floor(y0 - m) }
             end
         end
+        if PNL.hook and okm then
+            local okp, ep = pcall(PNL.ndpop_tick, mx, my)
+            if not okp and not PNL.np_err then PNL.np_err = true; pnl_log("ND popup: " .. tostring(ep)) end
+        end
         if PNL.hook then
             for s = 0, 1 do
                 local sd = PNL.sd[s]
@@ -12011,6 +12062,9 @@ local function pnl_frame()
         end
         if want ~= PNL.win_vis then
             XP.btv_XPLMSetWindowIsVisible(PNL.win, want and 1 or 0)
+            -- vor alle anderen schwebenden Fenster (ein spaeter angelegtes, z. B. vom FF nach einer Optionsaenderung,
+            -- laege sonst darueber und bekaeme die Klicks auf die Karte)
+            if want then pcall(function() XP.btv_XPLMBringWindowToFront(PNL.win) end) end
             PNL.win_vis = want
             if not want then
                 PNL.cap = nil; NDUI.kb_end()
